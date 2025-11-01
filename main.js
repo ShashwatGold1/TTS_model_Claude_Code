@@ -745,10 +745,14 @@ async function speakWithPiper(text, modelKey, speed = 1.0, pitch = 1.0) {
       return;
     }
 
-    const modelPath = path.join(__dirname, model.path);
-    const configPath = path.join(__dirname, model.config);
+    // Handle both development and production paths
+    const isDev = !app.isPackaged;
+    const basePath = isDev ? __dirname : path.join(process.resourcesPath, 'app.asar.unpacked');
+
+    const modelPath = path.join(basePath, model.path);
+    const configPath = path.join(basePath, model.config);
     const outputPath = path.join(app.getPath('temp'), 'tts_output.wav');
-    const piperExe = path.join(__dirname, 'piper', 'piper.exe');
+    const piperExe = path.join(basePath, 'piper', 'piper.exe');
 
     // Check if model files exist
     if (!fs.existsSync(modelPath)) {

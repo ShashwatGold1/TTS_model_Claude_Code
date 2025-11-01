@@ -43,6 +43,11 @@
       "shortcutName": "TTS Voice",
       "deleteAppDataOnUninstall": true
     },
+    "asar": true,
+    "asarUnpack": [
+      "models/**/*",
+      "piper/**/*"
+    ],
     "files": [
       "**/*",
       "!**/*.md",
@@ -53,16 +58,6 @@
       "!convert_*.html",
       "!.git/**/*",
       "!.gitignore"
-    ],
-    "extraResources": [
-      {
-        "from": "models",
-        "to": "models"
-      },
-      {
-        "from": "piper",
-        "to": "piper"
-      }
     ],
     "directories": {
       "output": "dist",
