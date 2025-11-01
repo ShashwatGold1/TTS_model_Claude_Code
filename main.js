@@ -14,6 +14,7 @@ try {
 }
 
 let mainWindow;
+let floatingWindow;
 let tray = null;
 let isAlwaysOnTop = true;
 let currentModel = 'amy';  // Currently selected model in UI (for display only)
@@ -82,6 +83,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 900,
     height: 600,
+    title: 'TTS Voice',
     alwaysOnTop: isAlwaysOnTop,
     webPreferences: {
       nodeIntegration: true,
@@ -127,6 +129,52 @@ function createWindow() {
   });
 }
 
+// Create floating window
+function createFloatingWindow() {
+  if (floatingWindow) {
+    floatingWindow.show();
+    floatingWindow.focus();
+    return;
+  }
+
+  floatingWindow = new BrowserWindow({
+    width: 200,
+    height: 60,
+    frame: false,
+    transparent: false,
+    alwaysOnTop: true,
+    resizable: false,
+    skipTaskbar: true,
+    hasShadow: false,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false
+    }
+  });
+
+  floatingWindow.loadFile('floating.html');
+
+  floatingWindow.on('closed', () => {
+    floatingWindow = null;
+  });
+}
+
+// Helper function to refresh floating window transparency
+function refreshFloatingWindow() {
+  if (floatingWindow && !floatingWindow.isDestroyed()) {
+    // Quick hide/show to force redraw
+    const wasVisible = floatingWindow.isVisible();
+    if (wasVisible) {
+      floatingWindow.hide();
+      setImmediate(() => {
+        if (floatingWindow && !floatingWindow.isDestroyed()) {
+          floatingWindow.show();
+        }
+      });
+    }
+  }
+}
+
 // Load settings from file
 function loadSettings() {
   try {
@@ -158,14 +206,14 @@ function saveSettings(settings) {
 
 // Create system tray
 function createTray() {
-  // Create a simple icon (you can replace with actual icon file)
-  const icon = nativeImage.createFromDataURL('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAdgAAAHYBTnsmCAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAADGSURBVDiNY2AYBaNgFJAKGBkZ/zMwMPxnYGD4DyT/o4lhCyCbAIohMSBqkOVR+IxIBvxHsgmrASguYGRk/I+iGEhj1YxLM1bNhDRj1UxIMz7NWA1AMQCbZlyacWrGqRmfZqyacWom2QXYNCPzG4n2A0MyAxbNID5BzbgMGNSaMbqAgZGB4T/MgP/fWPef+f+N8T+yYXgN+PP9P8Ofb/+hBuA04M/P//jDhpFhIOMfJnxhg8OAmJj/DH++Y4lVXJpHwdADAKJoTe/O4VBxAAAAAElFTkSuQmCC');
+  // TTS Voice logo from icon.png file
+  const icon = nativeImage.createFromPath(path.join(__dirname, 'icon.png'));
 
   tray = new Tray(icon);
 
   const contextMenu = Menu.buildFromTemplate([
     {
-      label: 'TTS Voice Assistant',
+      label: 'TTS Voice',
       enabled: false
     },
     { type: 'separator' },
@@ -198,7 +246,7 @@ function createTray() {
     }
   ]);
 
-  tray.setToolTip('TTS Voice Assistant - Ctrl+Shift+S to speak clipboard');
+  tray.setToolTip('TTS Voice - Ctrl+Shift+S to speak clipboard');
   tray.setContextMenu(contextMenu);
 
   tray.on('click', () => {
@@ -243,7 +291,7 @@ function updateTrayMenu() {
 
   const contextMenu = Menu.buildFromTemplate([
     {
-      label: 'TTS Voice Assistant',
+      label: 'TTS Voice',
       enabled: false
     },
     { type: 'separator' },
@@ -284,20 +332,33 @@ app.whenReady().then(() => {
   userDataPath = app.getPath('userData');
   settingsPath = path.join(userDataPath, 'settings.json');
 
+  // Enable auto-start on Windows boot
+  app.setLoginItemSettings({
+    openAtLogin: true,
+    openAsHidden: true,
+    args: ['--hidden']
+  });
+
   loadSettings();
   createTray();
-  createWindow();
+  createFloatingWindow();  // Start floating window
+  createWindow();  // Also start main window
 
-  // Keep hotkey registered even when app is in tray
+  // Global hotkey: Ctrl+Shift+S
   globalShortcut.register('CommandOrControl+Shift+S', () => {
-    if (mainWindow && mainWindow.isVisible()) {
-      const clipboardText = clipboard.readText();
-      if (clipboardText && clipboardText.trim()) {
-        mainWindow.webContents.send('speak-clipboard', clipboardText);
+    const clipboardText = clipboard.readText();
+    if (clipboardText && clipboardText.trim()) {
+      // Create floating window if it doesn't exist
+      if (!floatingWindow) {
+        createFloatingWindow();
       }
-    } else {
-      // App is in tray or closed - speak directly
-      speakFromTray();
+
+      // Show floating window and speak
+      floatingWindow.show();
+      floatingWindow.webContents.send('update-text-preview', clipboardText);
+
+      // Speak with default model
+      speakWithDefaultModel(clipboardText);
     }
   });
 });
@@ -393,8 +454,10 @@ ipcMain.on('speak-text', async (event, data) => {
     }
 
     event.reply('speak-complete');
+    refreshFloatingWindow();
   } catch (error) {
     event.reply('speak-error', error.message);
+    refreshFloatingWindow();
   }
 });
 
@@ -423,8 +486,10 @@ ipcMain.on('speak-with-default', async (event, data) => {
     }
 
     event.reply('speak-complete');
+    refreshFloatingWindow();
   } catch (error) {
     event.reply('speak-error', error.message);
+    refreshFloatingWindow();
   }
 });
 
@@ -447,8 +512,10 @@ ipcMain.on('demo-voice', async (event, data) => {
     }
 
     event.reply('demo-complete', modelKey);
+    refreshFloatingWindow();
   } catch (error) {
     event.reply('demo-error', error.message);
+    refreshFloatingWindow();
   }
 });
 
@@ -498,6 +565,82 @@ ipcMain.on('window-close', () => {
     mainWindow.close();
   }
 });
+
+// Floating window IPC handlers
+ipcMain.on('speak-from-floating', () => {
+  const clipboardText = clipboard.readText();
+  if (clipboardText && clipboardText.trim()) {
+    speakWithDefaultModel(clipboardText);
+  }
+});
+
+ipcMain.on('close-floating-window', () => {
+  if (floatingWindow) {
+    floatingWindow.close();
+  }
+});
+
+ipcMain.on('open-main-window', () => {
+  if (!mainWindow) {
+    createWindow();
+  } else {
+    mainWindow.show();
+    mainWindow.focus();
+  }
+});
+
+ipcMain.on('update-floating-size', (event, isVertical) => {
+  if (floatingWindow) {
+    if (isVertical) {
+      floatingWindow.setSize(60, 200);
+    } else {
+      floatingWindow.setSize(200, 60);
+    }
+  }
+});
+
+ipcMain.on('theme-changed', (event, theme) => {
+  if (floatingWindow) {
+    floatingWindow.webContents.send('theme-changed', theme);
+  }
+});
+
+ipcMain.on('invalidate-floating-window', () => {
+  if (floatingWindow) {
+    // Force window to repaint by hiding and showing
+    floatingWindow.hide();
+    setTimeout(() => {
+      if (floatingWindow) {
+        floatingWindow.show();
+      }
+    }, 50);
+  }
+});
+
+// Helper function to speak with default model and update floating window status
+async function speakWithDefaultModel(text) {
+  try {
+    if (floatingWindow) {
+      floatingWindow.webContents.send('speaking-status', true);
+    }
+
+    const model = models[defaultModel];
+    if (model.type === 'microsoft') {
+      await speakWithMicrosoft(text, defaultModel, defaultSpeed, defaultPitch);
+    } else {
+      await speakWithPiper(text, defaultModel, defaultSpeed, defaultPitch);
+    }
+
+    if (floatingWindow) {
+      floatingWindow.webContents.send('speaking-status', false);
+    }
+  } catch (error) {
+    console.error('Error speaking:', error);
+    if (floatingWindow) {
+      floatingWindow.webContents.send('speaking-status', false);
+    }
+  }
+}
 
 async function speakWithMicrosoft(text, modelKey, speed = 1.0, pitch = 1.0) {
   return new Promise((resolve, reject) => {

@@ -60,6 +60,8 @@ function setupEventListeners() {
             const theme = btn.dataset.theme;
             applyTheme(theme);
             localStorage.setItem('tts-theme', theme);
+            // Notify floating window of theme change
+            ipcRenderer.send('theme-changed', theme);
             // Update active state
             themeButtons.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');

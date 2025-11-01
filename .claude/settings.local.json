@@ -32,7 +32,13 @@
       "Bash(\"node_modules/electron/dist/electron.exe\" test-electron.js)",
       "Bash(\".\\node_modules\\.bin\\electron.cmd\" --version)",
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\n[1]: TTS Voice Assistant with theme selector and auto-reload\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(gh repo create:*)",
+      "Bash(python create_icon.py:*)",
+      "Bash(node create_simple_icon.js:*)",
+      "Bash(node generate_icon.js:*)",
+      "Bash(start convert_svg_to_png.html)"
     ],
     "deny": [],
     "ask": []

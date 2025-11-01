@@ -40,12 +40,12 @@ body[data-theme="white"] {
     --sidebar-hover: #e9ecef;
     --sidebar-active-border: #667eea;
     --main-bg: #ffffff;
-    --header-bg: #f8f9fa;
+    --header-bg: #f7f7f7;
     --section-bg: #ffffff;
     --text-primary: #2c3e50;
     --text-secondary: #6c757d;
     --input-bg: #ffffff;
-    --input-border: #ced4da;
+    --input-border: #ededed;
     --input-focus: #667eea;
     --button-primary-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     --button-primary-text: #ffffff;
@@ -69,7 +69,7 @@ body[data-theme="black"] {
     --text-primary: #e0e0e0;
     --text-secondary: #9e9e9e;
     --input-bg: #2d2d2d;
-    --input-border: #3d3d3d;
+    --input-border: #2c2c2c;
     --input-focus: #667eea;
     --button-primary-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     --button-primary-text: #ffffff;
@@ -117,7 +117,7 @@ body[data-theme="sidebar"] {
     --text-primary: #ecf0f1;
     --text-secondary: #95a5a6;
     --input-bg: #1a252f;
-    --input-border: #34495e;
+    --input-border: #1e2e3f;
     --input-focus: #3498db;
     --button-primary-bg: #3498db;
     --button-primary-text: #ffffff;
@@ -171,8 +171,18 @@ body {
     font-size: 16px;
 }
 
+.title-logo {
+    width: 24px;
+    height: 24px;
+    margin-right: 6px;
+    flex-shrink: 0;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
 .title-text {
     letter-spacing: 0.3px;
+    font-weight: 600;
+    font-size: 15px;
 }
 
 .title-bar-center {
@@ -224,24 +234,24 @@ body {
 /* Light Theme Circle */
 .theme-white .theme-circle {
     background: #ffffff;
-    border: 1px solid #e0e0e0;
+    border: 1px solid #ffffff;
 }
 
 /* Dark Theme Circle */
 .theme-black .theme-circle {
-    background: #121212;
-    border: 1px solid #333333;
+    background: #000000;
+    border: 1px solid #000000;
 }
 
 /* Purple Theme Circle */
 .theme-purple .theme-circle {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #2b51ff  0%, #9f00ff  100%);
 }
 
 /* Sidebar Theme Circle */
 .theme-sidebar .theme-circle {
-    background: #2c3e50;
-    border: 1px solid #34495e;
+    background: #22568b;
+    border: 1px solid #22568b;
 }
 
 .title-bar-pin-btn {
@@ -455,7 +465,8 @@ body {
 .app-header {
     background: var(--header-bg);
     padding: 15px 30px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid var(--input-border);
+    box-shadow: 5px 0px 5px 0px rgba(0, 0, 0, 0.425);
 }
 
 .status-bar {
@@ -691,6 +702,7 @@ body {
     background: var(--input-border);
     outline: none;
     -webkit-appearance: none;
+    appearance: none;
 }
 
 .setting-item-inline input[type="range"]::-webkit-slider-thumb {
@@ -731,7 +743,7 @@ body {
 }
 
 .settings-title {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
     color: var(--text-primary);
     margin-bottom: 15px;
@@ -782,6 +794,7 @@ body {
     background: var(--input-border);
     outline: none;
     -webkit-appearance: none;
+    appearance: none;
 }
 
 .setting-item input[type="range"]::-webkit-slider-thumb {

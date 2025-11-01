@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTS Voice</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            overflow: hidden;
+        }
+
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            user-select: none;
+            -webkit-app-region: no-drag;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        body.horizontal {
+            width: 200px;
+            height: 60px;
+        }
+
+        body.vertical {
+            width: 60px;
+            height: 200px;
+        }
+
+        /* Theme Variables */
+        body {
+            /* Purple Theme (Default) */
+            --floating-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        body[data-theme="white"] {
+            --floating-bg: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        body[data-theme="black"] {
+            --floating-bg: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+        }
+
+        body[data-theme="purple"] {
+            --floating-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .container {
+            width: 100%;
+            height: 100%;
+            background: var(--floating-bg);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            position: relative;
+        }
+
+        body.horizontal .container {
+            flex-direction: row;
+            padding: 10px 16px;
+        }
+
+        body.vertical .container {
+            flex-direction: column;
+            padding: 16px 10px;
+        }
+
+        .drag-handle {
+            display: grid;
+            gap: 2px;
+            cursor: move;
+            -webkit-app-region: drag;
+            padding: 3px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        body.horizontal .drag-handle {
+            grid-template-columns: repeat(2, 4px);
+            grid-template-rows: repeat(3, 4px);
+        }
+
+        body.vertical .drag-handle {
+            grid-template-columns: repeat(3, 4px);
+            grid-template-rows: repeat(2, 4px);
+        }
+
+        .drag-handle:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .drag-dot {
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .drag-handle:hover .drag-dot {
+            background: rgba(255, 255, 255, 1);
+        }
+
+        .button-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        body.horizontal .button-group {
+            flex-direction: row;
+        }
+
+        body.vertical .button-group {
+            flex-direction: column;
+        }
+
+        .icon-btn {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .icon-btn:hover {
+            transform: scale(1.1);
+            background: white;
+        }
+
+        .icon-btn:active {
+            transform: scale(0.95);
+        }
+
+        .speak-btn {
+            font-size: 13px;
+            color: #667eea;
+        }
+
+        .speak-btn.speaking {
+            background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
+            color: white;
+        }
+
+        .text-input {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            border-radius: 8px;
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            padding: 0;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            backdrop-filter: blur(10px);
+            flex-shrink: 0;
+        }
+
+        .text-input:hover {
+            background: rgba(255, 255, 255, 0.4);
+            border-color: rgba(255, 255, 255, 0.9);
+            transform: scale(1.1);
+        }
+
+        .text-input::placeholder {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 12px;
+        }
+
+        .close-btn {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.2s;
+            backdrop-filter: blur(10px);
+            flex-shrink: 0;
+        }
+
+        .close-btn:hover {
+            background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
+            transform: scale(1.1);
+        }
+
+        .close-btn:active {
+            transform: scale(0.95);
+        }
+
+        .rotate-btn {
+            font-size: 14px;
+            color: #667eea;
+        }
+
+        /* Theme-specific text colors */
+        body[data-theme="white"] .drag-dot {
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        body[data-theme="white"] .drag-handle:hover .drag-dot {
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        body[data-theme="white"] .drag-handle:hover {
+            background: rgba(0, 0, 0, 0.08);
+        }
+
+        body[data-theme="white"] .text-input {
+            background: rgba(0, 0, 0, 0.15);
+            border-color: rgba(0, 0, 0, 0.3);
+            color: #2c3e50;
+        }
+
+        body[data-theme="white"] .text-input:hover {
+            background: rgba(0, 0, 0, 0.2);
+            border-color: rgba(0, 0, 0, 0.5);
+        }
+
+        body[data-theme="white"] .text-input::placeholder {
+            color: rgba(0, 0, 0, 0.5);
+        }
+
+        body[data-theme="white"] .close-btn {
+            background: rgba(0, 0, 0, 0.15);
+            color: #2c3e50;
+        }
+
+        body[data-theme="black"] .icon-btn {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        body[data-theme="black"] .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        body[data-theme="black"] .speak-btn,
+        body[data-theme="black"] .rotate-btn {
+            color: #667eea;
+        }
+    </style>
+</head>
+<body class="horizontal">
+    <div class="container">
+        <div class="drag-handle">
+            <div class="drag-dot"></div>
+            <div class="drag-dot"></div>
+            <div class="drag-dot"></div>
+            <div class="drag-dot"></div>
+            <div class="drag-dot"></div>
+            <div class="drag-dot"></div>
+        </div>
+
+        <div class="button-group">
+            <button class="icon-btn rotate-btn" id="rotateBtn" title="Rotate orientation">⟳</button>
+            <input type="text" class="text-input" id="textInput" placeholder="T" title="Click to open main app">
+            <button class="icon-btn speak-btn" id="speakBtn" title="Speak clipboard text">▶</button>
+        </div>
+
+        <button class="close-btn" id="closeBtn" title="Close">✕</button>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+        const speakBtn = document.getElementById('speakBtn');
+        const closeBtn = document.getElementById('closeBtn');
+        const rotateBtn = document.getElementById('rotateBtn');
+        const textInput = document.getElementById('textInput');
+        let isSpeaking = false;
+        let isVertical = false;
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('tts-theme') || 'purple';
+
+        // Load saved orientation
+        const savedOrientation = localStorage.getItem('floating-orientation') || 'horizontal';
+        isVertical = savedOrientation === 'vertical';
+
+        // Apply both theme and orientation on load
+        applyThemeAndOrientation(savedTheme);
+
+        // Apply both theme and orientation
+        function applyThemeAndOrientation(theme) {
+            const orientationClass = isVertical ? 'vertical' : 'horizontal';
+            document.body.className = orientationClass;
+            document.body.setAttribute('data-theme', theme);
+        }
+
+        // Rotate button
+        rotateBtn.addEventListener('click', () => {
+            toggleOrientation();
+        });
+
+        function toggleOrientation() {
+            isVertical = !isVertical;
+            const currentTheme = document.body.getAttribute('data-theme') || 'purple';
+            applyThemeAndOrientation(currentTheme);
+            localStorage.setItem('floating-orientation', isVertical ? 'vertical' : 'horizontal');
+            ipcRenderer.send('update-floating-size', isVertical);
+        }
+
+        // Listen for theme changes from main app
+        ipcRenderer.on('theme-changed', (event, theme) => {
+            localStorage.setItem('tts-theme', theme);
+            applyThemeAndOrientation(theme);
+            // Request window to invalidate and repaint
+            ipcRenderer.send('invalidate-floating-window');
+        });
+
+        // Speak/Stop button
+        speakBtn.addEventListener('click', () => {
+            if (isSpeaking) {
+                ipcRenderer.send('stop-speech');
+            } else {
+                ipcRenderer.send('speak-from-floating');
+            }
+        });
+
+        // Close button
+        closeBtn.addEventListener('click', () => {
+            ipcRenderer.send('close-floating-window');
+        });
+
+        // Text input - opens main app when clicked
+        textInput.addEventListener('click', () => {
+            ipcRenderer.send('open-main-window');
+        });
+
+        // Listen for speaking status
+        ipcRenderer.on('speaking-status', (event, speaking) => {
+            isSpeaking = speaking;
+            if (speaking) {
+                speakBtn.textContent = '⏹';
+                speakBtn.classList.add('speaking');
+            } else {
+                speakBtn.textContent = '▶';
+                speakBtn.classList.remove('speaking');
+            }
+        });
+
+        // Update text preview
+        ipcRenderer.on('update-text-preview', (event, text) => {
+            if (text && text.length > 0) {
+                textInput.value = text.substring(0, 1);
+                textInput.title = text;
+            }
+        });
+    </script>
+</body>
+</html>

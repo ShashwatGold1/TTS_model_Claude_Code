@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SVG to PNG Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 10px;
+        }
+        h1 { margin-top: 0; }
+        canvas {
+            border: 2px solid white;
+            margin: 20px 0;
+            background: white;
+        }
+        button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #f0f0f0;
+        }
+        #preview {
+            margin: 20px 0;
+        }
+        .instructions {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎙️ TTS Voice - SVG to PNG Converter</h1>
+
+        <div class="instructions">
+            <h3>Instructions:</h3>
+            <ol>
+                <li>Click "Load & Convert SVG" button below</li>
+                <li>The TTS_Voice.svg will be converted to PNG</li>
+                <li>Click "Download as icon.png" to save</li>
+                <li>Save the file as <strong>icon.png</strong> in the project folder</li>
+            </ol>
+        </div>
+
+        <button onclick="convertSVG()">Load & Convert SVG</button>
+
+        <div id="preview"></div>
+
+        <canvas id="canvas" width="256" height="256" style="display:none;"></canvas>
+    </div>
+
+    <script>
+        async function convertSVG() {
+            try {
+                // Load the SVG file
+                const response = await fetch('TTS_Voice.svg');
+                const svgText = await response.text();
+
+                // Create an image from SVG
+                const img = new Image();
+                const blob = new Blob([svgText], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(blob);
+
+                img.onload = function() {
+                    // Draw on canvas
+                    const canvas = document.getElementById('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    // Clear canvas
+                    ctx.clearRect(0, 0, 256, 256);
+
+                    // Draw the image
+                    ctx.drawImage(img, 0, 0, 256, 256);
+
+                    // Show preview
+                    canvas.style.display = 'block';
+
+                    // Create download button
+                    const preview = document.getElementById('preview');
+                    preview.innerHTML = `
+                        <h3>✅ Conversion Successful!</h3>
+                        <p>Preview (256x256):</p>
+                        <button onclick="downloadPNG()">📥 Download as icon.png</button>
+                    `;
+
+                    URL.revokeObjectURL(url);
+                };
+
+                img.src = url;
+
+            } catch (error) {
+                alert('Error: ' + error.message);
+                console.error(error);
+            }
+        }
+
+        function downloadPNG() {
+            const canvas = document.getElementById('canvas');
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'icon.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                alert('✅ icon.png downloaded! Save it in the TTS_model folder.');
+            });
+        }
+    </script>
+</body>
+</html>
