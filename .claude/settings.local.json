@@ -38,7 +38,9 @@
       "Bash(python create_icon.py:*)",
       "Bash(node create_simple_icon.js:*)",
       "Bash(node generate_icon.js:*)",
-      "Bash(start convert_svg_to_png.html)"
+      "Bash(start convert_svg_to_png.html)",
+      "Bash(git commit -m \"$(cat <<''EOF''\n[2]: Floating window with themes and auto-start\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []

@@ -141,37 +141,80 @@ function createFloatingWindow() {
     width: 200,
     height: 60,
     frame: false,
-    transparent: false,
+    transparent: true,
     alwaysOnTop: true,
     resizable: false,
     skipTaskbar: true,
     hasShadow: false,
+    thickFrame: false,
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false
+      contextIsolation: false,
+      enablePreferredSizeMode: false
     }
   });
+
+  floatingWindow.setBackgroundColor('#00000000');
 
   floatingWindow.loadFile('floating.html');
 
   floatingWindow.on('closed', () => {
     floatingWindow = null;
   });
+
+  // Force window to redraw when ready to fix transparency
+  floatingWindow.once('ready-to-show', () => {
+    if (floatingWindow) {
+      floatingWindow.show();
+      // Trigger a resize to force proper transparency rendering
+      setTimeout(() => {
+        if (floatingWindow && !floatingWindow.isDestroyed()) {
+          const bounds = floatingWindow.getBounds();
+          floatingWindow.setBounds({ ...bounds, width: bounds.width + 1 });
+          setTimeout(() => {
+            if (floatingWindow && !floatingWindow.isDestroyed()) {
+              floatingWindow.setBounds(bounds);
+            }
+          }, 10);
+        }
+      }, 100);
+    }
+  });
+
+  // Refresh transparency when window is moved
+  let moveTimeout;
+  floatingWindow.on('move', () => {
+    clearTimeout(moveTimeout);
+    moveTimeout = setTimeout(() => {
+      refreshFloatingWindow();
+    }, 150);
+  });
+
+  // Refresh transparency when window gains or loses focus
+  floatingWindow.on('focus', () => {
+    setTimeout(() => {
+      refreshFloatingWindow();
+    }, 50);
+  });
+
+  floatingWindow.on('blur', () => {
+    setTimeout(() => {
+      refreshFloatingWindow();
+    }, 50);
+  });
 }
 
 // Helper function to refresh floating window transparency
 function refreshFloatingWindow() {
   if (floatingWindow && !floatingWindow.isDestroyed()) {
-    // Quick hide/show to force redraw
-    const wasVisible = floatingWindow.isVisible();
-    if (wasVisible) {
-      floatingWindow.hide();
-      setImmediate(() => {
-        if (floatingWindow && !floatingWindow.isDestroyed()) {
-          floatingWindow.show();
-        }
-      });
-    }
+    // Trigger a tiny resize to force Windows to redraw with proper transparency
+    const bounds = floatingWindow.getBounds();
+    floatingWindow.setBounds({ ...bounds, width: bounds.width + 1, height: bounds.height + 1 });
+    setImmediate(() => {
+      if (floatingWindow && !floatingWindow.isDestroyed()) {
+        floatingWindow.setBounds(bounds);
+      }
+    });
   }
 }
 
@@ -606,15 +649,11 @@ ipcMain.on('theme-changed', (event, theme) => {
 });
 
 ipcMain.on('invalidate-floating-window', () => {
-  if (floatingWindow) {
-    // Force window to repaint by hiding and showing
-    floatingWindow.hide();
-    setTimeout(() => {
-      if (floatingWindow) {
-        floatingWindow.show();
-      }
-    }, 50);
-  }
+  refreshFloatingWindow();
+});
+
+ipcMain.on('refresh-floating-transparency', () => {
+  refreshFloatingWindow();
 });
 
 // Helper function to speak with default model and update floating window status

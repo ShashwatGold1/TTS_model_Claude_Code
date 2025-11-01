@@ -35,9 +35,18 @@ function init() {
 }
 
 function setupEventListeners() {
-    speakStopBtn.addEventListener('click', handleSpeakStop);
-    clearBtn.addEventListener('click', handleClear);
-    alwaysOnTopBtn.addEventListener('click', handleAlwaysOnTop);
+    speakStopBtn.addEventListener('click', () => {
+        handleSpeakStop();
+        ipcRenderer.send('refresh-floating-transparency');
+    });
+    clearBtn.addEventListener('click', () => {
+        handleClear();
+        ipcRenderer.send('refresh-floating-transparency');
+    });
+    alwaysOnTopBtn.addEventListener('click', () => {
+        handleAlwaysOnTop();
+        ipcRenderer.send('refresh-floating-transparency');
+    });
 
     // Speed and pitch sliders
     speedSlider.addEventListener('input', handleSpeedChange);
@@ -46,9 +55,11 @@ function setupEventListeners() {
     // Window controls
     minimizeBtn.addEventListener('click', () => {
         ipcRenderer.send('window-minimize');
+        ipcRenderer.send('refresh-floating-transparency');
     });
     maximizeBtn.addEventListener('click', () => {
         ipcRenderer.send('window-maximize');
+        ipcRenderer.send('refresh-floating-transparency');
     });
     closeBtn.addEventListener('click', () => {
         ipcRenderer.send('window-close');
@@ -62,6 +73,8 @@ function setupEventListeners() {
             localStorage.setItem('tts-theme', theme);
             // Notify floating window of theme change
             ipcRenderer.send('theme-changed', theme);
+            // Refresh floating window transparency
+            ipcRenderer.send('refresh-floating-transparency');
             // Update active state
             themeButtons.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
@@ -69,7 +82,10 @@ function setupEventListeners() {
     });
 
     // Set as default button
-    setDefaultBtn.addEventListener('click', handleSetDefault);
+    setDefaultBtn.addEventListener('click', () => {
+        handleSetDefault();
+        ipcRenderer.send('refresh-floating-transparency');
+    });
 }
 
 // Handle Set as Default
@@ -286,6 +302,7 @@ function createModelItem(key, model) {
     modelItem.addEventListener('click', (e) => {
         if (!e.target.classList.contains('demo-btn')) {
             selectModel(key);
+            ipcRenderer.send('refresh-floating-transparency');
         }
     });
 

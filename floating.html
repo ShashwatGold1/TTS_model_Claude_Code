@@ -314,6 +314,18 @@
         // Apply both theme and orientation on load
         applyThemeAndOrientation(savedTheme);
 
+        // If vertical orientation was saved, update window size on load
+        if (isVertical) {
+            // Wait a bit for window to be ready, then resize
+            setTimeout(() => {
+                ipcRenderer.send('update-floating-size', true);
+                // Also refresh transparency
+                setTimeout(() => {
+                    ipcRenderer.send('refresh-floating-transparency');
+                }, 100);
+            }, 200);
+        }
+
         // Apply both theme and orientation
         function applyThemeAndOrientation(theme) {
             const orientationClass = isVertical ? 'vertical' : 'horizontal';
@@ -324,6 +336,7 @@
         // Rotate button
         rotateBtn.addEventListener('click', () => {
             toggleOrientation();
+            ipcRenderer.send('refresh-floating-transparency');
         });
 
         function toggleOrientation() {
@@ -349,6 +362,7 @@
             } else {
                 ipcRenderer.send('speak-from-floating');
             }
+            ipcRenderer.send('refresh-floating-transparency');
         });
 
         // Close button
@@ -359,7 +373,46 @@
         // Text input - opens main app when clicked
         textInput.addEventListener('click', () => {
             ipcRenderer.send('open-main-window');
+            ipcRenderer.send('refresh-floating-transparency');
         });
+
+        // Refresh transparency when text input is focused/interacted
+        textInput.addEventListener('focus', () => {
+            ipcRenderer.send('refresh-floating-transparency');
+        });
+
+        textInput.addEventListener('mousedown', () => {
+            ipcRenderer.send('refresh-floating-transparency');
+        });
+
+        // Refresh transparency when window is moved (drag by 6 dots)
+        let isDragging = false;
+        let dragTimeout;
+
+        window.addEventListener('will-move', () => {
+            isDragging = true;
+            clearTimeout(dragTimeout);
+        });
+
+        window.addEventListener('moved', () => {
+            isDragging = false;
+            clearTimeout(dragTimeout);
+            dragTimeout = setTimeout(() => {
+                ipcRenderer.send('refresh-floating-transparency');
+            }, 100);
+        });
+
+        // Alternative: Listen for any mouse movement on drag handle
+        const dragHandle = document.querySelector('.drag-handle');
+        if (dragHandle) {
+            dragHandle.addEventListener('mousedown', () => {
+                ipcRenderer.send('refresh-floating-transparency');
+                // Also refresh after a short delay when drag likely ends
+                setTimeout(() => {
+                    ipcRenderer.send('refresh-floating-transparency');
+                }, 300);
+            });
+        }
 
         // Listen for speaking status
         ipcRenderer.on('speaking-status', (event, speaking) => {
