@@ -5,6 +5,12 @@ node_modules/
 dist/
 out/
 build/
+*.exe
+*.msi
+*.dmg
+*.deb
+*.rpm
+*.AppImage
 
 # Models (too large for git)
 models/

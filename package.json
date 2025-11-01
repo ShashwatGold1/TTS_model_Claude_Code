@@ -1,11 +1,13 @@
 {
-  "name": "electron-tts-app",
+  "name": "tts-voice",
   "version": "1.0.0",
   "description": "High-quality local TTS application with 5 female voice models",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dev": "electron . --reload"
+    "dev": "electron . --reload",
+    "build": "electron-builder --win --x64",
+    "build:dir": "electron-builder --win --x64 --dir"
   },
   "keywords": [
     "electron",
@@ -15,8 +17,61 @@
   ],
   "author": "ShashwatGold1",
   "license": "MIT",
+  "build": {
+    "appId": "com.shashwatgold1.ttsvoice",
+    "productName": "TTS Voice",
+    "copyright": "Copyright © 2025 ShashwatGold1",
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "icon.png",
+      "requestedExecutionLevel": "asInvoker",
+      "signAndEditExecutable": false,
+      "signExts": []
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "TTS Voice",
+      "deleteAppDataOnUninstall": true
+    },
+    "files": [
+      "**/*",
+      "!**/*.md",
+      "!.claude/**/*",
+      "!create_*.py",
+      "!create_*.js",
+      "!generate_*.js",
+      "!convert_*.html",
+      "!.git/**/*",
+      "!.gitignore"
+    ],
+    "extraResources": [
+      {
+        "from": "models",
+        "to": "models"
+      },
+      {
+        "from": "piper",
+        "to": "piper"
+      }
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "."
+    }
+  },
   "devDependencies": {
     "electron": "^28.0.0",
+    "electron-builder": "^26.0.12",
     "electron-reload": "^2.0.0-alpha.1"
   },
   "dependencies": {
