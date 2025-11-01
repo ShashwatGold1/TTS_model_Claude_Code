@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Speech Test</title>
+</head>
+<body>
+    <h1>Speech Rate & Pitch Test</h1>
+
+    <div>
+        <label>Speed: <input type="range" id="speed" min="0.5" max="2" step="0.1" value="1"> <span id="speedVal">1.0</span></label><br>
+        <label>Pitch: <input type="range" id="pitch" min="0.5" max="2" step="0.1" value="1"> <span id="pitchVal">1.0</span></label><br>
+        <textarea id="text" rows="4" cols="50">Hello, this is a test of speech synthesis with adjustable speed and pitch.</textarea><br>
+        <button id="speak">Speak</button>
+    </div>
+
+    <script>
+        const synth = window.speechSynthesis;
+        const speedSlider = document.getElementById('speed');
+        const pitchSlider = document.getElementById('pitch');
+        const speedVal = document.getElementById('speedVal');
+        const pitchVal = document.getElementById('pitchVal');
+        const speakBtn = document.getElementById('speak');
+        const textArea = document.getElementById('text');
+
+        let rate = 1.0;
+        let pitch = 1.0;
+
+        speedSlider.addEventListener('input', (e) => {
+            rate = parseFloat(e.target.value);
+            speedVal.textContent = rate.toFixed(1);
+            console.log('Rate:', rate);
+        });
+
+        pitchSlider.addEventListener('input', (e) => {
+            pitch = parseFloat(e.target.value);
+            pitchVal.textContent = pitch.toFixed(1);
+            console.log('Pitch:', pitch);
+        });
+
+        speakBtn.addEventListener('click', () => {
+            const utterance = new SpeechSynthesisUtterance(textArea.value);
+            utterance.rate = rate;
+            utterance.pitch = pitch;
+
+            console.log('Speaking with rate:', utterance.rate, 'pitch:', utterance.pitch);
+
+            synth.speak(utterance);
+        });
+    </script>
+</body>
+</html>

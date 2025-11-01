@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTS Voice Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Custom Title Bar -->
+    <div class="custom-title-bar">
+        <div class="title-bar-drag-region">
+            <div class="title-bar-title">
+                <span class="title-icon">🎙️</span>
+                <span class="title-text">TTS Voice Assistant</span>
+            </div>
+        </div>
+        <div class="title-bar-center">
+            <div class="theme-selector">
+                <button class="theme-btn theme-white" data-theme="white" title="Light Theme">
+                    <span class="theme-circle"></span>
+                </button>
+                <button class="theme-btn theme-black" data-theme="black" title="Dark Theme">
+                    <span class="theme-circle"></span>
+                </button>
+                <button class="theme-btn theme-purple active" data-theme="purple" title="Purple Theme">
+                    <span class="theme-circle"></span>
+                </button>
+                <button class="theme-btn theme-sidebar" data-theme="sidebar" title="Sidebar Theme">
+                    <span class="theme-circle"></span>
+                </button>
+            </div>
+            <button id="alwaysOnTopBtn" class="title-bar-pin-btn active" title="Always on Top">
+                📌
+            </button>
+        </div>
+        <div class="title-bar-controls">
+            <button class="title-bar-btn minimize-btn" id="minimizeBtn" title="Minimize">
+                <svg width="12" height="12" viewBox="0 0 12 12">
+                    <rect x="0" y="5" width="12" height="2" fill="currentColor"/>
+                </svg>
+            </button>
+            <button class="title-bar-btn maximize-btn" id="maximizeBtn" title="Maximize">
+                <svg width="12" height="12" viewBox="0 0 12 12">
+                    <rect x="1" y="1" width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+            </button>
+            <button class="title-bar-btn close-btn" id="closeBtn" title="Close">
+                <svg width="12" height="12" viewBox="0 0 12 12">
+                    <path d="M 1,1 L 11,11 M 11,1 L 1,11" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3>Voice Models</h3>
+            </div>
+
+            <div class="models-list" id="modelsList">
+                <!-- Models will be populated here -->
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="app-header">
+                <div class="status-bar">
+                    <span class="hotkey-hint">Hotkey: <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd></span>
+                    <span class="status-indicator" id="statusIndicator">Ready</span>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <!-- Text Input Section -->
+                <section class="input-section">
+                    <div class="section-header">
+                        <h2>📝 Text to Speak</h2>
+                        <button id="setDefaultBtn" class="set-default-btn-header" title="Save current voice and settings as default for Ctrl+Shift+S">
+                            ⭐ Set as Default
+                        </button>
+                    </div>
+                    <div class="textarea-container">
+                        <textarea
+                            id="textInput"
+                            placeholder="Type or paste the text you want to hear..."
+                            rows="9"
+                        ></textarea>
+                        <div class="textarea-controls">
+                            <button id="speakStopBtn" class="textarea-btn speak-stop-btn" title="Speak / Stop">
+                                <span class="btn-icon">▶</span>
+                            </button>
+                            <button id="clearBtn" class="textarea-btn clear-btn-icon" title="Clear">
+                                <span class="btn-icon">✕</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Voice Settings (Below Text Input) -->
+                    <div class="voice-settings-inline">
+                        <div class="setting-item-inline">
+                            <label class="setting-label-inline">
+                                Speed
+                                <span class="value-display" id="speedValue">1.0x</span>
+                            </label>
+                            <input type="range" id="speedSlider" min="0.5" max="2.0" step="0.1" value="1.0">
+                        </div>
+                        <div class="setting-item-inline">
+                            <label class="setting-label-inline">
+                                Pitch
+                                <span class="value-display" id="pitchValue">1.0x</span>
+                            </label>
+                            <input type="range" id="pitchSlider" min="0.5" max="2.0" step="0.1" value="1.0">
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>

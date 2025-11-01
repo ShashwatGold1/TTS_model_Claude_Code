@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTS Voice Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3>Voice Models</h3>
+            </div>
+            <div class="models-list" id="modelsList">
+                <!-- Models will be populated here -->
+            </div>
+            <div class="sidebar-footer">
+                <button id="alwaysOnTopBtn" class="control-btn active" title="Always on Top">
+                    <span class="icon">📌</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="app-header">
+                <h1>🎙️ TTS Voice Assistant</h1>
+                <div class="status-bar">
+                    <span class="hotkey-hint">Hotkey: <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd></span>
+                    <span class="status-indicator" id="statusIndicator">Ready</span>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <!-- Text Input Section -->
+                <section class="input-section">
+                    <div class="section-header">
+                        <h2>Text Input</h2>
+                        <button id="getClipboardBtn" class="secondary-btn">
+                            📋 Get from Clipboard
+                        </button>
+                    </div>
+                    <textarea
+                        id="textInput"
+                        placeholder="Enter text to speak or use the clipboard button..."
+                        rows="8"
+                    ></textarea>
+                </section>
+
+                <!-- Voice Settings Section -->
+                <section class="controls-section">
+                    <div class="section-header">
+                        <h2>Voice Settings</h2>
+                    </div>
+                    <div class="settings-grid">
+                        <div class="setting-item">
+                            <label for="speedSlider">Speed: <span id="speedValue">1.0</span>x</label>
+                            <input type="range" id="speedSlider" min="0.5" max="2.0" step="0.1" value="1.0">
+                        </div>
+                        <div class="setting-item">
+                            <label for="pitchSlider">Pitch: <span id="pitchValue">1.0</span>x</label>
+                            <input type="range" id="pitchSlider" min="0.5" max="2.0" step="0.1" value="1.0">
+                        </div>
+                        <div class="setting-item">
+                            <button id="setDefaultBtn" class="secondary-btn">
+                                ⭐ Set as Default Voice
+                            </button>
+                            <button id="resetSettingsBtn" class="secondary-btn">
+                                🔄 Reset Settings
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Controls Section -->
+                <section class="controls-section">
+                    <div class="button-group">
+                        <button id="speakBtn" class="primary-btn">
+                            🔊 Speak
+                        </button>
+                        <button id="stopBtn" class="danger-btn" disabled>
+                            ⏹️ Stop
+                        </button>
+                        <button id="clearBtn" class="secondary-btn">
+                            🗑️ Clear
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Current Model Info -->
+                <section class="info-section">
+                    <div class="current-model-info">
+                        <div class="info-label">Current Voice:</div>
+                        <div class="info-value" id="currentModelName">Loading...</div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="renderer_combined.js"></script>
+</body>
+</html>
